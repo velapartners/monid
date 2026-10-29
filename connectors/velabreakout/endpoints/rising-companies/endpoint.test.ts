@@ -2,6 +2,7 @@ import { assertEquals, assertRejects } from "@std/assert";
 import type { Json } from "@shared/core";
 import { fromFileUrl } from "@std/path";
 import {
+    estimateEndpoint,
     liveSkip,
     loadFixture,
     runEndpoint,
@@ -28,8 +29,9 @@ Deno.test("velabreakout#rising-companies happy (synthetic): limit on the wire; $
         credits: { default: 0.02 },
         evidence: { RESULT: 1 },
     });
-    const companies = (result.output as Record<string, Json>)
-        .companies as Record<string, Json>[];
+    const output = result.output as Record<string, Json>;
+    assertEquals("billing" in output, false);
+    const companies = output.companies as Record<string, Json>[];
     assertEquals(companies.map((c) => c.domain), [
         "context7.com",
         "stepfun.com",
@@ -103,6 +105,13 @@ Deno.test("velabreakout#rising-companies: limit bounded; unknown keys rejected",
             "INVALID_INPUT",
             JSON.stringify(queryParams),
         );
+    } // the accepted twins of the rejected limits above
+    for (const limit of [1, 25]) {
+        assertEquals(
+            await estimateEndpoint(unit, { queryParams: { limit } }),
+            { credits: { default: 0.02 }, evidence: { RESULT: 1 } },
+            String(limit),
+        );
     }
 });
 
@@ -122,6 +131,8 @@ Deno.test({
             false,
             JSON.stringify(result.output),
         );
-        assertEquals(result.usage.evidence, { RESULT: 1 });
+        // shape, not amounts: `companies: []` is a valid, free 200
+        const output = result.output as Record<string, Json>;
+        assertEquals(Array.isArray(output.companies), true);
     },
 });

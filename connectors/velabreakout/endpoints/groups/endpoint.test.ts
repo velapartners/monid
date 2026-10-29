@@ -19,6 +19,10 @@ const IDS = [
     "velabreakout#rising-companies",
 ];
 
+// Rate table: $0.02 a ranked list (/breakouts, /ideas, /rising-companies),
+// $0.01 /company, /groups free; an empty answer and any non-200 cost nothing.
+// Source: https://breakout.vela.partners/pricing (Markdown:
+// https://breakout.vela.partners/pricing.md), verified 2026-10-29.
 Deno.test("velabreakout: five GET docs, bearer auth, dollar pool, $0.02 lists, $0.01 /company, free /groups, no consolidate", async () => {
     const bundle = await testBundle();
     const ids = Object.keys(bundle.endpoints).filter((id) =>
@@ -77,8 +81,9 @@ Deno.test("velabreakout#groups happy (synthetic): free, zero usage, groups relay
     assertEquals(result.httpStatus, 200);
     assertEquals(result.isProviderError, false);
     assertEquals(result.usage, { credits: {}, evidence: {} });
-    const groups = (result.output as { groups: Record<string, unknown>[] })
-        .groups;
+    const output = result.output as Record<string, unknown>;
+    assertEquals("billing" in output, false);
+    const groups = output.groups as Record<string, unknown>[];
     assertEquals(groups.map((g) => g.id), [
         "ai_apps",
         "agent_tools",

@@ -3,8 +3,8 @@ import { zBreakoutsQueryParams } from "./schema/inputs.ts";
 
 /**
  * GET /breakouts — the fastest growers in one group. $0.02 when the
- * ranking carries at least one row; `rows: []` (e.g. a strict `steady`
- * filter on a small group) is free.
+ * answer carries at least one row or new launch; `rows: []` with no
+ * `new_launches` (e.g. a strict `steady` filter on a small group) is free.
  */
 export default defineEndpoint({
     meta: {
@@ -48,13 +48,17 @@ export default defineEndpoint({
             consumes: { credit: "default", amount: 0.02 },
         },
         estimate: () => ({ counts: { RESULT: 1 } }),
-        /** Bills only when `rows` is non-empty — an empty ranking is free
-         *  to the buyer. */
+        /** Bills when the answer carries data: `rows`, or `new_launches`
+         *  (listed beside an empty ranking). Both empty is free, as on
+         *  Breakout's own rate card. */
         evidence: ({ data, utils }) => {
-            const rows = utils.json.optionalGet(data.output, "$.rows");
+            const has = (path: string) => {
+                const v = utils.json.optionalGet(data.output, path);
+                return Array.isArray(v) && v.length > 0;
+            };
             return {
                 counts: {
-                    RESULT: Array.isArray(rows) && rows.length > 0 ? 1 : 0,
+                    RESULT: has("$.rows") || has("$.new_launches") ? 1 : 0,
                 },
             };
         },

@@ -5,7 +5,7 @@
         {
             "req": {
                 "method": "GET",
-                "url": "https://breakout.vela.partners/api/v1/breakouts?group=ai_apps&limit=3"
+                "url": "{{request.url}}?group=ai_apps&limit=3"
             },
             "res": {
                 "status": 401,

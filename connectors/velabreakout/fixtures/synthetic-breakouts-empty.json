@@ -5,7 +5,7 @@
         {
             "req": {
                 "method": "GET",
-                "url": "https://breakout.vela.partners/api/v1/breakouts?group=ai_work&window_days=7&steady=true"
+                "url": "{{request.url}}?group=ai_work&window_days=7&steady=true"
             },
             "res": {
                 "status": 200,

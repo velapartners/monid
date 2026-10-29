@@ -5,7 +5,7 @@
         {
             "req": {
                 "method": "GET",
-                "url": "https://breakout.vela.partners/api/v1/ideas?direction=fading&limit=3"
+                "url": "{{request.url}}?direction=fading&limit=3"
             },
             "res": {
                 "status": 200,

@@ -9,15 +9,16 @@ import { defineProvider, presets } from "@shared/core";
  *
  * Billing: Breakout prices a ranked list at $0.02 and a company lookup
  * at $0.01, taken from the account's prepaid dollar credit; `/groups`
- * is free, and only an
+ * is free (rate card: https://breakout.vela.partners/pricing, Markdown
+ * https://breakout.vela.partners/pricing.md, verified 2026-10-29), and only an
  * HTTP 200 is charged (400/401/402/404/429/503 cost nothing — a 404 for
  * an unknown company is explicitly not charged). The vendor publishes
  * its price in DOLLARS and meters one dollar balance, so the pool IS
  * dollars (the exa/minimax/dataforseo posture, design D26). Each paid
  * endpoint bills one RESULT only when its answer carries at least one
  * row (`rows`, `ideas`, `companies`, `signals`): an empty answer is free
- * to the buyer, and if Breakout still deducts for it Monid absorbs that
- * (the keenable/search1api posture). `/groups` is FREE. Responses carry
+ * to the buyer, and Breakout does not deduct for it either (its rate
+ * card: "a 200 whose list is empty" is not charged). `/groups` is FREE. Responses carry
  * NO cost or credit field, so there is no `usage.consolidate` (design
  * D27, the tinyfish/clay/keenable posture): the derived fold settles.
  *

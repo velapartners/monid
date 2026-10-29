@@ -33,6 +33,7 @@ Deno.test("velabreakout#breakouts happy (synthetic): params ride the query strin
         evidence: { RESULT: 1 },
     });
     const output = result.output as Record<string, Json>;
+    assertEquals("billing" in output, false);
     assertEquals(output.group, "AI apps");
     assertEquals(output.measured_as_of, "2026-10-11");
     const rows = output.rows as Record<string, Json>[];
@@ -73,6 +74,29 @@ Deno.test("velabreakout#breakouts empty rows (synthetic 200): free, zero usage",
         evidence: { RESULT: 0 },
     });
     assertEquals((result.output as Record<string, Json>).rows, []);
+});
+
+Deno.test("velabreakout#breakouts new launches only (synthetic 200): data, $0.02", async () => {
+    const unit = await testSealedUnit(ID);
+    const fixture = await loadFixture(
+        `${fixturesDir}synthetic-breakouts-launches-only.json`,
+    );
+    const result = await runEndpoint({
+        unit,
+        input: {
+            queryParams: { group: "open_models", window_days: 7, steady: true },
+        },
+        mode: "replay",
+        fixture,
+    });
+    assertEquals(result.httpStatus, 200);
+    assertEquals(result.usage, {
+        credits: { default: 0.02 },
+        evidence: { RESULT: 1 },
+    });
+    const output = result.output as Record<string, Json>;
+    assertEquals(output.rows, []);
+    assertEquals((output.new_launches as Json[]).length, 1);
 });
 
 Deno.test("velabreakout#breakouts 401 (synthetic): data, zero usage", async () => {
@@ -150,7 +174,7 @@ Deno.test({
             false,
             JSON.stringify(result.output),
         );
-        assertEquals(result.usage.evidence, { RESULT: 1 });
+        // shape, not amounts: `rows: []` is a valid, free 200
         const output = result.output as Record<string, Json>;
         assertEquals(Array.isArray(output.rows), true);
     },

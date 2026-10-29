@@ -5,7 +5,7 @@
         {
             "req": {
                 "method": "GET",
-                "url": "https://breakout.vela.partners/api/v1/ideas?direction=rising"
+                "url": "{{request.url}}?direction=rising"
             },
             "res": {
                 "status": 401,

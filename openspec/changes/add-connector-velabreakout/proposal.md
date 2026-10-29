@@ -41,9 +41,9 @@ capability.
   `FREE`. Only HTTP 200 is charged upstream, which is exactly the engine's
   zero-billed non-2xx rule.
 - **An empty answer is free to the buyer** (the keenable / search1api
-  posture). Whether Breakout still deducts for a 200 with an empty list is
-  not documented; if it does, Monid absorbs it, and the connector has no
-  channel to record that cost.
+  posture). Breakout does not deduct for it either: its rate card
+  (https://breakout.vela.partners/pricing, verified 2026-10-29) lists "a 200
+  whose list is empty" as not charged, so buyer and upstream agree.
 - **No `usage.consolidate`.** No Breakout response carries a cost or credit
   field, so the derived fold settles (design D27; the tinyfish / clay /
   keenable posture).

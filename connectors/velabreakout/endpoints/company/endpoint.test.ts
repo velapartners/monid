@@ -2,6 +2,7 @@ import { assertEquals, assertRejects } from "@std/assert";
 import type { Json } from "@shared/core";
 import { fromFileUrl } from "@std/path";
 import {
+    estimateEndpoint,
     liveSkip,
     loadFixture,
     runEndpoint,
@@ -29,6 +30,7 @@ Deno.test("velabreakout#company happy (synthetic): domain rides the query string
         evidence: { RESULT: 1 },
     });
     const output = result.output as Record<string, Json>;
+    assertEquals("billing" in output, false);
     assertEquals(output.name, "Supabase");
     assertEquals(output.domain, "supabase.com");
     const signals = output.signals as Record<string, Json>[];
@@ -100,6 +102,13 @@ Deno.test("velabreakout#company: name_or_domain required, 2-120 chars, unknown k
             "INVALID_INPUT",
             JSON.stringify(queryParams),
         );
+    } // the accepted twins of the rejected lengths above
+    for (const name_or_domain of ["xx", "x".repeat(120)]) {
+        assertEquals(
+            await estimateEndpoint(unit, { queryParams: { name_or_domain } }),
+            { credits: { default: 0.01 }, evidence: { RESULT: 1 } },
+            name_or_domain,
+        );
     }
 });
 
@@ -119,6 +128,9 @@ Deno.test({
             false,
             JSON.stringify(result.output),
         );
-        assertEquals(result.usage.evidence, { RESULT: 1 });
+        // shape, not amounts: a company with no signals is a valid, free 200
+        const output = result.output as Record<string, Json>;
+        assertEquals(typeof output.name, "string");
+        assertEquals(Array.isArray(output.signals), true);
     },
 });

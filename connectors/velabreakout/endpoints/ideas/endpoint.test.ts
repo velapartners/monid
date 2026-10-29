@@ -2,6 +2,7 @@ import { assertEquals, assertRejects } from "@std/assert";
 import type { Json } from "@shared/core";
 import { fromFileUrl } from "@std/path";
 import {
+    estimateEndpoint,
     liveSkip,
     loadFixture,
     runEndpoint,
@@ -26,10 +27,9 @@ Deno.test("velabreakout#ideas happy (synthetic): direction + limit on the wire; 
         credits: { default: 0.02 },
         evidence: { RESULT: 1 },
     });
-    const ideas = (result.output as Record<string, Json>).ideas as Record<
-        string,
-        Json
-    >[];
+    const output = result.output as Record<string, Json>;
+    assertEquals("billing" in output, false);
+    const ideas = output.ideas as Record<string, Json>[];
     assertEquals(ideas.length, 2);
     assertEquals(ideas[0].idea, "Agentic systems and tool use");
     assertEquals(ideas[0].change, "+0.9 points");
@@ -93,6 +93,15 @@ Deno.test("velabreakout#ideas: direction required and closed; limit bounded", as
             "INVALID_INPUT",
             JSON.stringify(queryParams),
         );
+    } // the accepted twins of the rejected limit above
+    for (const limit of [1, 25]) {
+        assertEquals(
+            await estimateEndpoint(unit, {
+                queryParams: { direction: "rising", limit },
+            }),
+            { credits: { default: 0.02 }, evidence: { RESULT: 1 } },
+            String(limit),
+        );
     }
 });
 
@@ -111,6 +120,8 @@ Deno.test({
             false,
             JSON.stringify(result.output),
         );
-        assertEquals(result.usage.evidence, { RESULT: 1 });
+        // shape, not amounts: `ideas: []` is a valid, free 200
+        const output = result.output as Record<string, Json>;
+        assertEquals(Array.isArray(output.ideas), true);
     },
 });
