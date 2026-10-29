@@ -26,7 +26,7 @@ Deno.test("velabreakout#company happy (synthetic): domain rides the query string
     assertEquals(result.isProviderError, false);
     assertEquals(result.usage, {
         credits: { default: 0.01 },
-        evidence: { CALL: 1 },
+        evidence: { RESULT: 1 },
     });
     const output = result.output as Record<string, Json>;
     assertEquals(output.name, "Supabase");
@@ -34,6 +34,26 @@ Deno.test("velabreakout#company happy (synthetic): domain rides the query string
     const signals = output.signals as Record<string, Json>[];
     assertEquals(signals.length, 4);
     assertEquals(signals[0].unit, "installs");
+});
+
+Deno.test("velabreakout#company empty signals (synthetic 200): free, zero usage", async () => {
+    const unit = await testSealedUnit(ID);
+    const fixture = await loadFixture(
+        `${fixturesDir}synthetic-company-empty.json`,
+    );
+    const result = await runEndpoint({
+        unit,
+        input: { queryParams: { name_or_domain: "example.com" } },
+        mode: "replay",
+        fixture,
+    });
+    assertEquals(result.httpStatus, 200);
+    assertEquals(result.isProviderError, false);
+    assertEquals(result.usage, {
+        credits: {},
+        evidence: { RESULT: 0 },
+    });
+    assertEquals((result.output as Record<string, Json>).signals, []);
 });
 
 Deno.test("velabreakout#company unknown company (synthetic 404): data, zero usage", async () => {
@@ -99,6 +119,6 @@ Deno.test({
             false,
             JSON.stringify(result.output),
         );
-        assertEquals(result.usage.evidence, { CALL: 1 });
+        assertEquals(result.usage.evidence, { RESULT: 1 });
     },
 });

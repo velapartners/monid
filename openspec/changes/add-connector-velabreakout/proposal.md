@@ -34,20 +34,29 @@ capability.
   `limit` fragment lives in `schema/common.ts`. No `input.toRequest`.
 - **One dollar pool.** Breakout meters one prepaid dollar balance and
   publishes its price in dollars, so the pool `default` is "US dollars"
-  (the exa / minimax / dataforseo posture). The provider declares
-  `PER_CALL` 0.02 (a ranked list); `/company` overrides it with `PER_CALL`
-  0.01 (one lookup) and `/groups` with `FREE`. Only HTTP 200 is
-  charged upstream, which is exactly the engine's zero-billed non-2xx rule.
+  (the exa / minimax / dataforseo posture). `/breakouts`, `/ideas` and
+  `/rising-companies` bill $0.02 (a ranked list) and `/company` $0.01 (one
+  lookup) as `PER_UNIT` RESULT, counting one only when the answer's list
+  (`rows`, `ideas`, `companies`, `signals`) is non-empty; `/groups` is
+  `FREE`. Only HTTP 200 is charged upstream, which is exactly the engine's
+  zero-billed non-2xx rule.
+- **An empty answer is free to the buyer** (the keenable / search1api
+  posture). Whether Breakout still deducts for a 200 with an empty list is
+  not documented; if it does, Monid absorbs it, and the connector has no
+  channel to record that cost.
 - **No `usage.consolidate`.** No Breakout response carries a cost or credit
   field, so the derived fold settles (design D27; the tinyfish / clay /
   keenable posture).
 - **New category leaf `market-trends`** ("Tech & Market Trends"): no existing
   leaf names growth and adoption tracking. `/company` and
   `/rising-companies` also carry `company-enrichment`.
-- **Fixtures**: seven provider-level `synthetic-` chains. Bodies are real
+- **Fixtures**: thirteen provider-level `synthetic-` chains. Bodies are real
   Breakout API responses captured 2026-10-12 by hand and trimmed (the API
   was not yet reachable for `deno task record`); the 401 chain binds
-  `{{request.url}}` so it serves any parameterless call.
+  `{{request.url}}` so it serves any parameterless call. Four `*-empty`
+  chains pin the free empty answer: `breakouts-empty` is a real answer
+  captured 2026-10-28 through Breakout's keyless MCP tool; the other three
+  are hand-built from the matching `-ok` shapes.
 
 ## Capabilities
 

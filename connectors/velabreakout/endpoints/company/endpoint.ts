@@ -1,10 +1,10 @@
-import { defineEndpoint, UsageModelKind } from "@shared/core";
+import { defineEndpoint, Unit, UsageModelKind } from "@shared/core";
 import { zCompanyQueryParams } from "./schema/inputs.ts";
 
 /**
- * GET /company — every measured signal for one company. A lookup is
- * $0.01 PER_CALL (half the provider's list price); a 404 (unknown
- * company) is not charged.
+ * GET /company — every measured signal for one company. $0.01 when the
+ * answer carries at least one signal; `signals: []` is free, and a 404
+ * (unknown company) is not charged.
  */
 export default defineEndpoint({
     meta: {
@@ -40,9 +40,24 @@ export default defineEndpoint({
     input: { schema: { queryParams: zCompanyQueryParams } },
     usage: {
         model: {
-            kind: UsageModelKind.PER_CALL,
-            label: "company lookup",
+            kind: UsageModelKind.PER_UNIT,
+            unit: Unit.RESULT,
+            label: "company lookups with signals",
+            description: "one /company call that returned at least one signal",
             consumes: { credit: "default", amount: 0.01 },
+        },
+        estimate: () => ({ counts: { RESULT: 1 } }),
+        /** Bills only when `signals` is non-empty — a lookup without
+         *  signals is free to the buyer. */
+        evidence: ({ data, utils }) => {
+            const signals = utils.json.optionalGet(data.output, "$.signals");
+            return {
+                counts: {
+                    RESULT: Array.isArray(signals) && signals.length > 0
+                        ? 1
+                        : 0,
+                },
+            };
         },
     },
 });

@@ -1,9 +1,9 @@
-import { defineEndpoint } from "@shared/core";
+import { defineEndpoint, Unit, UsageModelKind } from "@shared/core";
 import { zIdeasQueryParams } from "./schema/inputs.ts";
 
 /**
  * GET /ideas — AI research ideas by change in share of new papers.
- * Inherits the provider's $0.02 PER_CALL.
+ * $0.02 when the answer carries at least one idea; `ideas: []` is free.
  */
 export default defineEndpoint({
     meta: {
@@ -26,4 +26,24 @@ export default defineEndpoint({
     },
     request: { method: "GET", path: "/ideas" },
     input: { schema: { queryParams: zIdeasQueryParams } },
+    usage: {
+        model: {
+            kind: UsageModelKind.PER_UNIT,
+            unit: Unit.RESULT,
+            label: "idea lists with ideas",
+            description: "one /ideas call that returned at least one idea",
+            consumes: { credit: "default", amount: 0.02 },
+        },
+        estimate: () => ({ counts: { RESULT: 1 } }),
+        /** Bills only when `ideas` is non-empty — an empty list is free to
+         *  the buyer. */
+        evidence: ({ data, utils }) => {
+            const ideas = utils.json.optionalGet(data.output, "$.ideas");
+            return {
+                counts: {
+                    RESULT: Array.isArray(ideas) && ideas.length > 0 ? 1 : 0,
+                },
+            };
+        },
+    },
 });

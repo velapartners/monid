@@ -1,9 +1,9 @@
-import { defineEndpoint } from "@shared/core";
+import { defineEndpoint, Unit, UsageModelKind } from "@shared/core";
 import { zRisingCompaniesQueryParams } from "./schema/inputs.ts";
 
 /**
- * GET /rising-companies — multi-signal breakouts. Inherits the
- * provider's $0.02 PER_CALL.
+ * GET /rising-companies — multi-signal breakouts. $0.02 when the answer
+ * carries at least one company; `companies: []` is free.
  */
 export default defineEndpoint({
     meta: {
@@ -27,4 +27,30 @@ export default defineEndpoint({
     },
     request: { method: "GET", path: "/rising-companies" },
     input: { schema: { queryParams: zRisingCompaniesQueryParams } },
+    usage: {
+        model: {
+            kind: UsageModelKind.PER_UNIT,
+            unit: Unit.RESULT,
+            label: "company lists with companies",
+            description:
+                "one /rising-companies call that returned at least one company",
+            consumes: { credit: "default", amount: 0.02 },
+        },
+        estimate: () => ({ counts: { RESULT: 1 } }),
+        /** Bills only when `companies` is non-empty — an empty list is free
+         *  to the buyer. */
+        evidence: ({ data, utils }) => {
+            const companies = utils.json.optionalGet(
+                data.output,
+                "$.companies",
+            );
+            return {
+                counts: {
+                    RESULT: Array.isArray(companies) && companies.length > 0
+                        ? 1
+                        : 0,
+                },
+            };
+        },
+    },
 });

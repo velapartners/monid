@@ -26,7 +26,7 @@ Deno.test("velabreakout#rising-companies happy (synthetic): limit on the wire; $
     assertEquals(result.isProviderError, false);
     assertEquals(result.usage, {
         credits: { default: 0.02 },
-        evidence: { CALL: 1 },
+        evidence: { RESULT: 1 },
     });
     const companies = (result.output as Record<string, Json>)
         .companies as Record<string, Json>[];
@@ -41,6 +41,26 @@ Deno.test("velabreakout#rising-companies happy (synthetic): limit on the wire; $
         "Forum points",
         "Web reach",
     ]);
+});
+
+Deno.test("velabreakout#rising-companies empty companies (synthetic 200): free, zero usage", async () => {
+    const unit = await testSealedUnit(ID);
+    const fixture = await loadFixture(
+        `${fixturesDir}synthetic-rising-companies-empty.json`,
+    );
+    const result = await runEndpoint({
+        unit,
+        input: { queryParams: { limit: 3 } },
+        mode: "replay",
+        fixture,
+    });
+    assertEquals(result.httpStatus, 200);
+    assertEquals(result.isProviderError, false);
+    assertEquals(result.usage, {
+        credits: {},
+        evidence: { RESULT: 0 },
+    });
+    assertEquals((result.output as Record<string, Json>).companies, []);
 });
 
 Deno.test("velabreakout#rising-companies 401 (synthetic): data, zero usage", async () => {
@@ -102,6 +122,6 @@ Deno.test({
             false,
             JSON.stringify(result.output),
         );
-        assertEquals(result.usage.evidence, { CALL: 1 });
+        assertEquals(result.usage.evidence, { RESULT: 1 });
     },
 });

@@ -1,4 +1,4 @@
-import { defineProvider, presets, UsageModelKind } from "@shared/core";
+import { defineProvider, presets } from "@shared/core";
 
 /**
  * Vela Breakout (breakout.vela.partners) — what is growing in tech,
@@ -13,9 +13,11 @@ import { defineProvider, presets, UsageModelKind } from "@shared/core";
  * HTTP 200 is charged (400/401/402/404/429/503 cost nothing — a 404 for
  * an unknown company is explicitly not charged). The vendor publishes
  * its price in DOLLARS and meters one dollar balance, so the pool IS
- * dollars (the exa/minimax/dataforseo posture, design D26), and the
- * provider states the PER_CALL 0.02 the three list endpoints inherit;
- * `/company` overrides it with PER_CALL 0.01 and `/groups` with FREE. Responses carry
+ * dollars (the exa/minimax/dataforseo posture, design D26). Each paid
+ * endpoint bills one RESULT only when its answer carries at least one
+ * row (`rows`, `ideas`, `companies`, `signals`): an empty answer is free
+ * to the buyer, and if Breakout still deducts for it Monid absorbs that
+ * (the keenable/search1api posture). `/groups` is FREE. Responses carry
  * NO cost or credit field, so there is no `usage.consolidate` (design
  * D27, the tinyfish/clay/keenable posture): the derived fold settles.
  *
@@ -52,7 +54,7 @@ export default defineProvider({
         notes: [
             "A ranked list (/breakouts, /rising-companies, /ideas) costs " +
             "$0.02 a call, a company lookup (/company) $0.01; /groups is " +
-            "free. Only " +
+            "free. An answer with no rows or signals is free. Only " +
             "HTTP 200 is charged — bad input (400), a missing key (401), " +
             "out of credit (402), an unknown company (404), the rate " +
             "limit (429) and failures (503) all cost nothing.",
@@ -74,14 +76,5 @@ export default defineProvider({
          *  dollar balance and publishes its price in dollars, so the
          *  pool IS US dollars. */
         credits: { default: { label: "US dollars" } },
-        /** $0.02 per ranked-list call (published in the API's own
-         *  OpenAPI `info.description`, 2026-10-12). `/company`
-         *  overrides with $0.01, `/groups` with FREE. No `consolidate`: no response body carries a
-         *  meter. */
-        model: {
-            kind: UsageModelKind.PER_CALL,
-            label: "ranked list",
-            consumes: { credit: "default", amount: 0.02 },
-        },
     },
 });

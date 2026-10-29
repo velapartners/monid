@@ -30,7 +30,7 @@ Deno.test("velabreakout#breakouts happy (synthetic): params ride the query strin
     // no consolidate ⇒ the derived fold settles
     assertEquals(result.usage, {
         credits: { default: 0.02 },
-        evidence: { CALL: 1 },
+        evidence: { RESULT: 1 },
     });
     const output = result.output as Record<string, Json>;
     assertEquals(output.group, "AI apps");
@@ -48,9 +48,31 @@ Deno.test("velabreakout#breakouts estimate: $0.02 whatever the limit", async () 
             await estimateEndpoint(unit, {
                 queryParams: { group: "agent_tools", limit },
             }),
-            { credits: { default: 0.02 }, evidence: { CALL: 1 } },
+            { credits: { default: 0.02 }, evidence: { RESULT: 1 } },
         );
     }
+});
+
+Deno.test("velabreakout#breakouts empty rows (synthetic 200): free, zero usage", async () => {
+    const unit = await testSealedUnit(ID);
+    const fixture = await loadFixture(
+        `${fixturesDir}synthetic-breakouts-empty.json`,
+    );
+    const result = await runEndpoint({
+        unit,
+        input: {
+            queryParams: { group: "ai_work", window_days: 7, steady: true },
+        },
+        mode: "replay",
+        fixture,
+    });
+    assertEquals(result.httpStatus, 200);
+    assertEquals(result.isProviderError, false);
+    assertEquals(result.usage, {
+        credits: {},
+        evidence: { RESULT: 0 },
+    });
+    assertEquals((result.output as Record<string, Json>).rows, []);
 });
 
 Deno.test("velabreakout#breakouts 401 (synthetic): data, zero usage", async () => {
@@ -108,7 +130,7 @@ Deno.test("velabreakout#breakouts: group required and closed; window, limit, min
                 steady: true,
             },
         }),
-        { credits: { default: 0.02 }, evidence: { CALL: 1 } },
+        { credits: { default: 0.02 }, evidence: { RESULT: 1 } },
     );
 });
 
@@ -128,7 +150,7 @@ Deno.test({
             false,
             JSON.stringify(result.output),
         );
-        assertEquals(result.usage.evidence, { CALL: 1 });
+        assertEquals(result.usage.evidence, { RESULT: 1 });
         const output = result.output as Record<string, Json>;
         assertEquals(Array.isArray(output.rows), true);
     },

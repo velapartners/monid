@@ -1,10 +1,10 @@
-import { defineEndpoint } from "@shared/core";
+import { defineEndpoint, Unit, UsageModelKind } from "@shared/core";
 import { zBreakoutsQueryParams } from "./schema/inputs.ts";
 
 /**
- * GET /breakouts — the fastest growers in one group. Inherits the
- * provider's $0.02 PER_CALL; estimate and evidence are
- * compiler-synthesized (flat model).
+ * GET /breakouts — the fastest growers in one group. $0.02 when the
+ * ranking carries at least one row; `rows: []` (e.g. a strict `steady`
+ * filter on a small group) is free.
  */
 export default defineEndpoint({
     meta: {
@@ -39,4 +39,24 @@ export default defineEndpoint({
     },
     request: { method: "GET", path: "/breakouts" },
     input: { schema: { queryParams: zBreakoutsQueryParams } },
+    usage: {
+        model: {
+            kind: UsageModelKind.PER_UNIT,
+            unit: Unit.RESULT,
+            label: "rankings with rows",
+            description: "one /breakouts call that returned at least one row",
+            consumes: { credit: "default", amount: 0.02 },
+        },
+        estimate: () => ({ counts: { RESULT: 1 } }),
+        /** Bills only when `rows` is non-empty — an empty ranking is free
+         *  to the buyer. */
+        evidence: ({ data, utils }) => {
+            const rows = utils.json.optionalGet(data.output, "$.rows");
+            return {
+                counts: {
+                    RESULT: Array.isArray(rows) && rows.length > 0 ? 1 : 0,
+                },
+            };
+        },
+    },
 });

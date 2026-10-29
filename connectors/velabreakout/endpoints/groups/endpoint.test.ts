@@ -43,7 +43,7 @@ Deno.test("velabreakout: five GET docs, bearer auth, dollar pool, $0.02 lists, $
             assertEquals(doc.usage.model.kind, "FREE");
             assertEquals(doc.usage.credits, {});
         } else {
-            assertEquals(doc.usage.model.kind, "PER_CALL", id);
+            assertEquals(doc.usage.model.kind, "PER_UNIT", id);
             assertEquals(
                 "consumes" in doc.usage.model
                     ? doc.usage.model.consumes
