@@ -12,17 +12,17 @@ const fixturesDir = fromFileUrl(new URL("../../fixtures/", import.meta.url));
 
 /** The five ids, exactly as the lock records them. */
 const IDS = [
-    "vela-breakout#breakouts",
-    "vela-breakout#company",
-    "vela-breakout#groups",
-    "vela-breakout#ideas",
-    "vela-breakout#rising-companies",
+    "velabreakout#breakouts",
+    "velabreakout#company",
+    "velabreakout#groups",
+    "velabreakout#ideas",
+    "velabreakout#rising-companies",
 ];
 
-Deno.test("vela-breakout: five GET docs, bearer auth, dollar pool, $0.02 lists, $0.01 /company, free /groups, no consolidate", async () => {
+Deno.test("velabreakout: five GET docs, bearer auth, dollar pool, $0.02 lists, $0.01 /company, free /groups, no consolidate", async () => {
     const bundle = await testBundle();
     const ids = Object.keys(bundle.endpoints).filter((id) =>
-        id.startsWith("vela-breakout#")
+        id.startsWith("velabreakout#")
     ).sort();
     assertEquals(ids, IDS);
 
@@ -39,7 +39,7 @@ Deno.test("vela-breakout: five GET docs, bearer auth, dollar pool, $0.02 lists, 
         authKeys.add(doc.auth.inject.$fn.key);
         assertEquals(doc.usage.consolidate, undefined, id);
         assertEquals(doc.input.toRequest, undefined, id);
-        if (id === "vela-breakout#groups") {
+        if (id === "velabreakout#groups") {
             assertEquals(doc.usage.model.kind, "FREE");
             assertEquals(doc.usage.credits, {});
         } else {
@@ -50,7 +50,7 @@ Deno.test("vela-breakout: five GET docs, bearer auth, dollar pool, $0.02 lists, 
                     : undefined,
                 {
                     credit: "default",
-                    amount: id === "vela-breakout#company" ? 0.01 : 0.02,
+                    amount: id === "velabreakout#company" ? 0.01 : 0.02,
                 },
                 id,
             );
@@ -65,8 +65,8 @@ Deno.test("vela-breakout: five GET docs, bearer auth, dollar pool, $0.02 lists, 
     assertEquals(authKeys.size, 1);
 });
 
-Deno.test("vela-breakout#groups happy (synthetic): free, zero usage, groups relayed", async () => {
-    const unit = await testSealedUnit("vela-breakout#groups");
+Deno.test("velabreakout#groups happy (synthetic): free, zero usage, groups relayed", async () => {
+    const unit = await testSealedUnit("velabreakout#groups");
     const fixture = await loadFixture(`${fixturesDir}synthetic-groups-ok.json`);
     const result = await runEndpoint({
         unit,
@@ -89,8 +89,8 @@ Deno.test("vela-breakout#groups happy (synthetic): free, zero usage, groups rela
     assertEquals(typeof groups[0].caveat, "string");
 });
 
-Deno.test("vela-breakout#groups 401 (synthetic): data, zero usage", async () => {
-    const unit = await testSealedUnit("vela-breakout#groups");
+Deno.test("velabreakout#groups 401 (synthetic): data, zero usage", async () => {
+    const unit = await testSealedUnit("velabreakout#groups");
     const fixture = await loadFixture(
         `${fixturesDir}synthetic-unauthorized.json`,
     );
@@ -107,10 +107,10 @@ Deno.test("vela-breakout#groups 401 (synthetic): data, zero usage", async () => 
 
 Deno.test({
     name:
-        "vela-breakout#groups live (gated on VELA_BREAKOUT_CREDENTIALS_API_KEY)",
-    ignore: liveSkip("vela-breakout"),
+        "velabreakout#groups live (gated on VELABREAKOUT_CREDENTIALS_API_KEY)",
+    ignore: liveSkip("velabreakout"),
     fn: async () => {
-        const unit = await testSealedUnit("vela-breakout#groups");
+        const unit = await testSealedUnit("velabreakout#groups");
         const result = await runEndpoint({ unit, input: {}, mode: "live" });
         assertEquals(
             result.isProviderError,

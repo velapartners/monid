@@ -1,6 +1,6 @@
 {
     "name": "synthetic-ideas-unauthorized",
-    "description": "SYNTHETIC chain for vela-breakout#ideas: GET /ideas?direction=rising with a missing or unknown key answers 401 {error} — data, zero usage. Its required query values keep it off the shared no-parameter synthetic-unauthorized chain. Body captured 2026-10-12 from a local build with its host rewritten to production.",
+    "description": "SYNTHETIC chain for velabreakout#ideas: GET /ideas?direction=rising with a missing or unknown key answers 401 {error} — data, zero usage. Its required query values keep it off the shared no-parameter synthetic-unauthorized chain. Body captured 2026-10-12 from a local build with its host rewritten to production.",
     "calls": [
         {
             "req": {

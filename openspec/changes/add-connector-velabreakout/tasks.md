@@ -1,4 +1,4 @@
-# Tasks: add-connector-vela-breakout
+# Tasks: add-connector-velabreakout
 
 ## 1. Drill the vendor surface
 
@@ -30,7 +30,7 @@
       ideas-ok, rising-companies-ok, unauthorized
 - [x] 4.2 Tests: bundle shape (ids, auth, pool, models, no consolidate),
       happy / 404 / 401 replay with usage, estimate, schema gates, live
-      gated on `VELA_BREAKOUT_CREDENTIALS_API_KEY`
+      gated on `VELABREAKOUT_CREDENTIALS_API_KEY`
 - [x] 4.3 Live: `deno task test:live` green against production
       (2026-10-12, all five endpoints). Fixtures stay synthetic (real
       bodies, trimmed) so replay asserts stable figures

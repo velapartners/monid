@@ -1,9 +1,9 @@
-# vela-breakout-connector (delta)
+# velabreakout-connector (delta)
 
 ## ADDED Requirements
 
 ### Requirement: Vela Breakout provider definition
-The vela-breakout provider SHALL declare name `vela-breakout`,
+The velabreakout provider SHALL declare name `velabreakout`,
 `request.baseUrl` `https://breakout.vela.partners/api/v1`, auth
 `presets.auth.bearer()`, timeouts 30 s request / 30 s run, one credit pool
 `default` ("US dollars"), a provider-level `usage.model` of PER_CALL 0.02
@@ -16,7 +16,7 @@ dollars (overridden to PER_CALL 0.01 on `/company`), and NO `usage.consolidate` 
   and `rows` unchanged
 
 #### Scenario: The price does not depend on limit
-- **WHEN** `vela-breakout#breakouts` is estimated with `limit: 1` and
+- **WHEN** `velabreakout#breakouts` is estimated with `limit: 1` and
   `limit: 25`
 - **THEN** both estimates are `{credits: {default: 0.02}, evidence:
   {CALL: 1}}`
@@ -36,9 +36,9 @@ dollars (overridden to PER_CALL 0.01 on `/company`), and NO `usage.consolidate` 
   {}}`, and the vendor `{error}` body rides through
 
 ### Requirement: Five endpoints mirroring the published OpenAPI
-The connector SHALL provide `vela-breakout#groups`,
-`vela-breakout#breakouts`, `vela-breakout#company`, `vela-breakout#ideas`
-and `vela-breakout#rising-companies`, each a GET whose strict query-param
+The connector SHALL provide `velabreakout#groups`,
+`velabreakout#breakouts`, `velabreakout#company`, `velabreakout#ideas`
+and `velabreakout#rising-companies`, each a GET whose strict query-param
 schema mirrors the published OpenAPI: `group` required and limited to the
 16 ids `/groups` returns; `window_days` one of 7, 30, 90, 365; `limit` an
 integer 1-25; `min_size` one of median, p75, none; `steady` boolean;
@@ -46,7 +46,7 @@ integer 1-25; `min_size` one of median, p75, none; `steady` boolean;
 or fading. `POST /ask` SHALL NOT be exposed.
 
 #### Scenario: Out-of-contract input is refused before the wire
-- **WHEN** `vela-breakout#breakouts` runs without `group`, with an unknown
+- **WHEN** `velabreakout#breakouts` runs without `group`, with an unknown
   group, with `window_days: 14`, or with `limit: 26`
 - **THEN** the run fails INVALID_INPUT and no request is sent
 

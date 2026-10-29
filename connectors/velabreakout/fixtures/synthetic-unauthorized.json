@@ -1,6 +1,6 @@
 {
     "name": "synthetic-unauthorized",
-    "description": "SYNTHETIC chain for any vela-breakout endpoint called with no parameters ({{request.url}} binding): a missing or unknown key answers 401 {error} — data, zero usage. Body captured 2026-10-12 from a local build with its host rewritten to production.",
+    "description": "SYNTHETIC chain for any velabreakout endpoint called with no parameters ({{request.url}} binding): a missing or unknown key answers 401 {error} — data, zero usage. Body captured 2026-10-12 from a local build with its host rewritten to production.",
     "calls": [
         {
             "req": {

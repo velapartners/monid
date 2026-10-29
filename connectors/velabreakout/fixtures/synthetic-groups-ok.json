@@ -1,6 +1,6 @@
 {
     "name": "synthetic-groups-ok",
-    "description": "SYNTHETIC chain for vela-breakout#groups: GET /groups returns the rankable groups (id, name, signal, meaning, unit, caveat, usual_window_days); trimmed to 4 of 16 groups. FREE — zero usage. Body is a real Breakout API response captured 2026-10-12 (not via `deno task record`, which needs the API live), trimmed by hand; replace via `deno task record` once a key is provisioned.",
+    "description": "SYNTHETIC chain for velabreakout#groups: GET /groups returns the rankable groups (id, name, signal, meaning, unit, caveat, usual_window_days); trimmed to 4 of 16 groups. FREE — zero usage. Body is a real Breakout API response captured 2026-10-12 (not via `deno task record`, which needs the API live), trimmed by hand; replace via `deno task record` once a key is provisioned.",
     "calls": [
         {
             "req": {

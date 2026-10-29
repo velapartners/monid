@@ -1,6 +1,6 @@
 {
     "name": "synthetic-breakouts-unauthorized",
-    "description": "SYNTHETIC chain for vela-breakout#breakouts: GET /breakouts?group=ai_apps&limit=3 with a missing or unknown key answers 401 {error} — data, zero usage. Its required query values keep it off the shared no-parameter synthetic-unauthorized chain. Body captured 2026-10-12 from a local build with its host rewritten to production.",
+    "description": "SYNTHETIC chain for velabreakout#breakouts: GET /breakouts?group=ai_apps&limit=3 with a missing or unknown key answers 401 {error} — data, zero usage. Its required query values keep it off the shared no-parameter synthetic-unauthorized chain. Body captured 2026-10-12 from a local build with its host rewritten to production.",
     "calls": [
         {
             "req": {

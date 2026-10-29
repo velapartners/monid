@@ -9,16 +9,14 @@ import {
 } from "@shared/testing";
 
 const fixturesDir = fromFileUrl(new URL("../../fixtures/", import.meta.url));
-const ID = "vela-breakout#rising-companies";
+const ID = "velabreakout#ideas";
 
-Deno.test("vela-breakout#rising-companies happy (synthetic): limit on the wire; $0.02; companies relayed", async () => {
+Deno.test("velabreakout#ideas happy (synthetic): direction + limit on the wire; $0.02; ideas relayed", async () => {
     const unit = await testSealedUnit(ID);
-    const fixture = await loadFixture(
-        `${fixturesDir}synthetic-rising-companies-ok.json`,
-    );
+    const fixture = await loadFixture(`${fixturesDir}synthetic-ideas-ok.json`);
     const result = await runEndpoint({
         unit,
-        input: { queryParams: { limit: 3 } },
+        input: { queryParams: { direction: "rising", limit: 2 } },
         mode: "replay",
         fixture,
     });
@@ -28,29 +26,23 @@ Deno.test("vela-breakout#rising-companies happy (synthetic): limit on the wire; 
         credits: { default: 0.02 },
         evidence: { CALL: 1 },
     });
-    const companies = (result.output as Record<string, Json>)
-        .companies as Record<string, Json>[];
-    assertEquals(companies.map((c) => c.domain), [
-        "context7.com",
-        "stepfun.com",
-        "poolside.ai",
-    ]);
-    assertEquals(companies[1].rising_on, [
-        "Model tokens",
-        "Open model pull",
-        "Forum points",
-        "Web reach",
-    ]);
+    const ideas = (result.output as Record<string, Json>).ideas as Record<
+        string,
+        Json
+    >[];
+    assertEquals(ideas.length, 2);
+    assertEquals(ideas[0].idea, "Agentic systems and tool use");
+    assertEquals(ideas[0].change, "+0.9 points");
 });
 
-Deno.test("vela-breakout#rising-companies 401 (synthetic): data, zero usage", async () => {
+Deno.test("velabreakout#ideas 401 (synthetic): data, zero usage", async () => {
     const unit = await testSealedUnit(ID);
     const fixture = await loadFixture(
-        `${fixturesDir}synthetic-unauthorized.json`,
+        `${fixturesDir}synthetic-ideas-unauthorized.json`,
     );
     const result = await runEndpoint({
         unit,
-        input: { queryParams: {} },
+        input: { queryParams: { direction: "rising" } },
         mode: "replay",
         fixture,
     });
@@ -59,16 +51,14 @@ Deno.test("vela-breakout#rising-companies 401 (synthetic): data, zero usage", as
     assertEquals(result.usage, { credits: {}, evidence: {} });
 });
 
-Deno.test("vela-breakout#rising-companies: limit bounded; unknown keys rejected", async () => {
+Deno.test("velabreakout#ideas: direction required and closed; limit bounded", async () => {
     const unit = await testSealedUnit(ID);
-    const fixture = await loadFixture(
-        `${fixturesDir}synthetic-rising-companies-ok.json`,
-    );
+    const fixture = await loadFixture(`${fixturesDir}synthetic-ideas-ok.json`);
     const rejected: Record<string, Json>[] = [
-        { limit: 0 },
-        { limit: 26 },
-        { limit: 2.5 },
-        { group: "ai_apps" },
+        {},
+        { direction: "up" },
+        { direction: "rising", limit: 26 },
+        { direction: "rising", bogus: true },
     ];
     for (const queryParams of rejected) {
         await assertRejects(
@@ -87,14 +77,13 @@ Deno.test("vela-breakout#rising-companies: limit bounded; unknown keys rejected"
 });
 
 Deno.test({
-    name:
-        "vela-breakout#rising-companies live (gated on VELA_BREAKOUT_CREDENTIALS_API_KEY)",
-    ignore: liveSkip("vela-breakout"),
+    name: "velabreakout#ideas live (gated on VELABREAKOUT_CREDENTIALS_API_KEY)",
+    ignore: liveSkip("velabreakout"),
     fn: async () => {
         const unit = await testSealedUnit(ID);
         const result = await runEndpoint({
             unit,
-            input: { queryParams: { limit: 3 } },
+            input: { queryParams: { direction: "fading", limit: 2 } },
             mode: "live",
         });
         assertEquals(

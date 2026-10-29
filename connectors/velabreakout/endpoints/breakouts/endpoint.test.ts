@@ -10,9 +10,9 @@ import {
 } from "@shared/testing";
 
 const fixturesDir = fromFileUrl(new URL("../../fixtures/", import.meta.url));
-const ID = "vela-breakout#breakouts";
+const ID = "velabreakout#breakouts";
 
-Deno.test("vela-breakout#breakouts happy (synthetic): params ride the query string; $0.02; rows relayed", async () => {
+Deno.test("velabreakout#breakouts happy (synthetic): params ride the query string; $0.02; rows relayed", async () => {
     const unit = await testSealedUnit(ID);
     const fixture = await loadFixture(
         `${fixturesDir}synthetic-breakouts-ok.json`,
@@ -41,7 +41,7 @@ Deno.test("vela-breakout#breakouts happy (synthetic): params ride the query stri
     assertEquals(rows[0].against_peers, "Faster than 99% of AI apps");
 });
 
-Deno.test("vela-breakout#breakouts estimate: $0.02 whatever the limit", async () => {
+Deno.test("velabreakout#breakouts estimate: $0.02 whatever the limit", async () => {
     const unit = await testSealedUnit(ID);
     for (const limit of [1, 25]) {
         assertEquals(
@@ -53,7 +53,7 @@ Deno.test("vela-breakout#breakouts estimate: $0.02 whatever the limit", async ()
     }
 });
 
-Deno.test("vela-breakout#breakouts 401 (synthetic): data, zero usage", async () => {
+Deno.test("velabreakout#breakouts 401 (synthetic): data, zero usage", async () => {
     const unit = await testSealedUnit(ID);
     const fixture = await loadFixture(
         `${fixturesDir}synthetic-breakouts-unauthorized.json`,
@@ -69,7 +69,7 @@ Deno.test("vela-breakout#breakouts 401 (synthetic): data, zero usage", async () 
     assertEquals(result.usage, { credits: {}, evidence: {} });
 });
 
-Deno.test("vela-breakout#breakouts: group required and closed; window, limit, min_size bounded; unknown keys rejected", async () => {
+Deno.test("velabreakout#breakouts: group required and closed; window, limit, min_size bounded; unknown keys rejected", async () => {
     const unit = await testSealedUnit(ID);
     const fixture = await loadFixture(
         `${fixturesDir}synthetic-breakouts-ok.json`,
@@ -114,8 +114,8 @@ Deno.test("vela-breakout#breakouts: group required and closed; window, limit, mi
 
 Deno.test({
     name:
-        "vela-breakout#breakouts live (gated on VELA_BREAKOUT_CREDENTIALS_API_KEY)",
-    ignore: liveSkip("vela-breakout"),
+        "velabreakout#breakouts live (gated on VELABREAKOUT_CREDENTIALS_API_KEY)",
+    ignore: liveSkip("velabreakout"),
     fn: async () => {
         const unit = await testSealedUnit(ID);
         const result = await runEndpoint({

@@ -1,4 +1,4 @@
-# Proposal: add-connector-vela-breakout
+# Proposal: add-connector-velabreakout
 
 ## Why
 
@@ -15,19 +15,19 @@ capability.
 
 ## What Changes
 
-- **connectors/vela-breakout** — 5 endpoints against
+- **connectors/velabreakout** — 5 endpoints against
   `https://breakout.vela.partners/api/v1`, bearer auth, 30 s / 30 s:
-  - `vela-breakout#groups` (`GET /groups`): every rankable group with id,
+  - `velabreakout#groups` (`GET /groups`): every rankable group with id,
     signal, meaning, unit, caveat and usual window. FREE.
-  - `vela-breakout#breakouts` (`GET /breakouts`): the fastest growers in
+  - `velabreakout#breakouts` (`GET /breakouts`): the fastest growers in
     one group; `group` required (closed enum of the 16 ids `/groups`
     returns), optional `window_days` (7/30/90/365), `limit` (1-25),
     `min_size` (median/p75/none), `steady`.
-  - `vela-breakout#company` (`GET /company`): every signal for one company
+  - `velabreakout#company` (`GET /company`): every signal for one company
     by name or domain (2-120 characters); an unknown company is a 404.
-  - `vela-breakout#ideas` (`GET /ideas`): AI research ideas by change in
+  - `velabreakout#ideas` (`GET /ideas`): AI research ideas by change in
     share of new papers; `direction` required (rising/fading), `limit`.
-  - `vela-breakout#rising-companies` (`GET /rising-companies`): companies
+  - `velabreakout#rising-companies` (`GET /rising-companies`): companies
     rising on two or more measures; `limit`.
 - **Faithful mirrors, no wire layer.** Each `schema/inputs.ts` mirrors the
   published OpenAPI parameters (optionality only, `.strict()`); the shared
@@ -51,7 +51,7 @@ capability.
 
 ## Capabilities
 
-- `vela-breakout-connector`.
+- `velabreakout-connector`.
 
 ## Non-goals
 

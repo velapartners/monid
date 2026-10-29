@@ -9,56 +9,63 @@ import {
 } from "@shared/testing";
 
 const fixturesDir = fromFileUrl(new URL("../../fixtures/", import.meta.url));
-const ID = "vela-breakout#ideas";
+const ID = "velabreakout#company";
 
-Deno.test("vela-breakout#ideas happy (synthetic): direction + limit on the wire; $0.02; ideas relayed", async () => {
+Deno.test("velabreakout#company happy (synthetic): domain rides the query string; $0.01; signals relayed", async () => {
     const unit = await testSealedUnit(ID);
-    const fixture = await loadFixture(`${fixturesDir}synthetic-ideas-ok.json`);
+    const fixture = await loadFixture(
+        `${fixturesDir}synthetic-company-ok.json`,
+    );
     const result = await runEndpoint({
         unit,
-        input: { queryParams: { direction: "rising", limit: 2 } },
+        input: { queryParams: { name_or_domain: "supabase.com" } },
         mode: "replay",
         fixture,
     });
     assertEquals(result.httpStatus, 200);
     assertEquals(result.isProviderError, false);
     assertEquals(result.usage, {
-        credits: { default: 0.02 },
+        credits: { default: 0.01 },
         evidence: { CALL: 1 },
     });
-    const ideas = (result.output as Record<string, Json>).ideas as Record<
-        string,
-        Json
-    >[];
-    assertEquals(ideas.length, 2);
-    assertEquals(ideas[0].idea, "Agentic systems and tool use");
-    assertEquals(ideas[0].change, "+0.9 points");
+    const output = result.output as Record<string, Json>;
+    assertEquals(output.name, "Supabase");
+    assertEquals(output.domain, "supabase.com");
+    const signals = output.signals as Record<string, Json>[];
+    assertEquals(signals.length, 4);
+    assertEquals(signals[0].unit, "installs");
 });
 
-Deno.test("vela-breakout#ideas 401 (synthetic): data, zero usage", async () => {
+Deno.test("velabreakout#company unknown company (synthetic 404): data, zero usage", async () => {
     const unit = await testSealedUnit(ID);
     const fixture = await loadFixture(
-        `${fixturesDir}synthetic-ideas-unauthorized.json`,
+        `${fixturesDir}synthetic-company-not-found.json`,
     );
     const result = await runEndpoint({
         unit,
-        input: { queryParams: { direction: "rising" } },
+        input: { queryParams: { name_or_domain: "nobody-here-zz" } },
         mode: "replay",
         fixture,
     });
-    assertEquals(result.httpStatus, 401);
+    assertEquals(result.httpStatus, 404);
     assertEquals(result.isProviderError, true);
     assertEquals(result.usage, { credits: {}, evidence: {} });
+    assertEquals(
+        (result.output as Record<string, Json>).error,
+        'No company called "nobody-here-zz" in today\'s data. Try its web domain.',
+    );
 });
 
-Deno.test("vela-breakout#ideas: direction required and closed; limit bounded", async () => {
+Deno.test("velabreakout#company: name_or_domain required, 2-120 chars, unknown keys rejected", async () => {
     const unit = await testSealedUnit(ID);
-    const fixture = await loadFixture(`${fixturesDir}synthetic-ideas-ok.json`);
+    const fixture = await loadFixture(
+        `${fixturesDir}synthetic-company-ok.json`,
+    );
     const rejected: Record<string, Json>[] = [
         {},
-        { direction: "up" },
-        { direction: "rising", limit: 26 },
-        { direction: "rising", bogus: true },
+        { name_or_domain: "x" },
+        { name_or_domain: "x".repeat(121) },
+        { name_or_domain: "supabase.com", domain: "supabase.com" },
     ];
     for (const queryParams of rejected) {
         await assertRejects(
@@ -78,13 +85,13 @@ Deno.test("vela-breakout#ideas: direction required and closed; limit bounded", a
 
 Deno.test({
     name:
-        "vela-breakout#ideas live (gated on VELA_BREAKOUT_CREDENTIALS_API_KEY)",
-    ignore: liveSkip("vela-breakout"),
+        "velabreakout#company live (gated on VELABREAKOUT_CREDENTIALS_API_KEY)",
+    ignore: liveSkip("velabreakout"),
     fn: async () => {
         const unit = await testSealedUnit(ID);
         const result = await runEndpoint({
             unit,
-            input: { queryParams: { direction: "fading", limit: 2 } },
+            input: { queryParams: { name_or_domain: "supabase.com" } },
             mode: "live",
         });
         assertEquals(

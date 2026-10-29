@@ -9,63 +9,66 @@ import {
 } from "@shared/testing";
 
 const fixturesDir = fromFileUrl(new URL("../../fixtures/", import.meta.url));
-const ID = "vela-breakout#company";
+const ID = "velabreakout#rising-companies";
 
-Deno.test("vela-breakout#company happy (synthetic): domain rides the query string; $0.01; signals relayed", async () => {
+Deno.test("velabreakout#rising-companies happy (synthetic): limit on the wire; $0.02; companies relayed", async () => {
     const unit = await testSealedUnit(ID);
     const fixture = await loadFixture(
-        `${fixturesDir}synthetic-company-ok.json`,
+        `${fixturesDir}synthetic-rising-companies-ok.json`,
     );
     const result = await runEndpoint({
         unit,
-        input: { queryParams: { name_or_domain: "supabase.com" } },
+        input: { queryParams: { limit: 3 } },
         mode: "replay",
         fixture,
     });
     assertEquals(result.httpStatus, 200);
     assertEquals(result.isProviderError, false);
     assertEquals(result.usage, {
-        credits: { default: 0.01 },
+        credits: { default: 0.02 },
         evidence: { CALL: 1 },
     });
-    const output = result.output as Record<string, Json>;
-    assertEquals(output.name, "Supabase");
-    assertEquals(output.domain, "supabase.com");
-    const signals = output.signals as Record<string, Json>[];
-    assertEquals(signals.length, 4);
-    assertEquals(signals[0].unit, "installs");
+    const companies = (result.output as Record<string, Json>)
+        .companies as Record<string, Json>[];
+    assertEquals(companies.map((c) => c.domain), [
+        "context7.com",
+        "stepfun.com",
+        "poolside.ai",
+    ]);
+    assertEquals(companies[1].rising_on, [
+        "Model tokens",
+        "Open model pull",
+        "Forum points",
+        "Web reach",
+    ]);
 });
 
-Deno.test("vela-breakout#company unknown company (synthetic 404): data, zero usage", async () => {
+Deno.test("velabreakout#rising-companies 401 (synthetic): data, zero usage", async () => {
     const unit = await testSealedUnit(ID);
     const fixture = await loadFixture(
-        `${fixturesDir}synthetic-company-not-found.json`,
+        `${fixturesDir}synthetic-unauthorized.json`,
     );
     const result = await runEndpoint({
         unit,
-        input: { queryParams: { name_or_domain: "nobody-here-zz" } },
+        input: { queryParams: {} },
         mode: "replay",
         fixture,
     });
-    assertEquals(result.httpStatus, 404);
+    assertEquals(result.httpStatus, 401);
     assertEquals(result.isProviderError, true);
     assertEquals(result.usage, { credits: {}, evidence: {} });
-    assertEquals(
-        (result.output as Record<string, Json>).error,
-        'No company called "nobody-here-zz" in today\'s data. Try its web domain.',
-    );
 });
 
-Deno.test("vela-breakout#company: name_or_domain required, 2-120 chars, unknown keys rejected", async () => {
+Deno.test("velabreakout#rising-companies: limit bounded; unknown keys rejected", async () => {
     const unit = await testSealedUnit(ID);
     const fixture = await loadFixture(
-        `${fixturesDir}synthetic-company-ok.json`,
+        `${fixturesDir}synthetic-rising-companies-ok.json`,
     );
     const rejected: Record<string, Json>[] = [
-        {},
-        { name_or_domain: "x" },
-        { name_or_domain: "x".repeat(121) },
-        { name_or_domain: "supabase.com", domain: "supabase.com" },
+        { limit: 0 },
+        { limit: 26 },
+        { limit: 2.5 },
+        { group: "ai_apps" },
     ];
     for (const queryParams of rejected) {
         await assertRejects(
@@ -85,13 +88,13 @@ Deno.test("vela-breakout#company: name_or_domain required, 2-120 chars, unknown 
 
 Deno.test({
     name:
-        "vela-breakout#company live (gated on VELA_BREAKOUT_CREDENTIALS_API_KEY)",
-    ignore: liveSkip("vela-breakout"),
+        "velabreakout#rising-companies live (gated on VELABREAKOUT_CREDENTIALS_API_KEY)",
+    ignore: liveSkip("velabreakout"),
     fn: async () => {
         const unit = await testSealedUnit(ID);
         const result = await runEndpoint({
             unit,
-            input: { queryParams: { name_or_domain: "supabase.com" } },
+            input: { queryParams: { limit: 3 } },
             mode: "live",
         });
         assertEquals(

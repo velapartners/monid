@@ -1,6 +1,6 @@
 {
     "name": "synthetic-company-not-found",
-    "description": "SYNTHETIC chain for vela-breakout#company: an unknown company answers 404 {error} — vendor non-2xx is DATA, zero usage (Breakout does not charge a 404 either). Body is a real Breakout API response captured 2026-10-12 (not via `deno task record`, which needs the API live), trimmed by hand; replace via `deno task record` once a key is provisioned.",
+    "description": "SYNTHETIC chain for velabreakout#company: an unknown company answers 404 {error} — vendor non-2xx is DATA, zero usage (Breakout does not charge a 404 either). Body is a real Breakout API response captured 2026-10-12 (not via `deno task record`, which needs the API live), trimmed by hand; replace via `deno task record` once a key is provisioned.",
     "calls": [
         {
             "req": {

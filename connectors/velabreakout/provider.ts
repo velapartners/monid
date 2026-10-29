@@ -25,7 +25,7 @@ import { defineProvider, presets, UsageModelKind } from "@shared/core";
  * directions.
  */
 export default defineProvider({
-    name: "vela-breakout",
+    name: "velabreakout",
     meta: {
         displayName: "Vela Breakout",
         summary: "What is growing in tech, measured daily: AI apps and " +
